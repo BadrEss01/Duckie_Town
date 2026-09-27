@@ -1,0 +1,8 @@
+<launch>
+ <include file="$(find duckie_lane_following)/launch/lane_following.launch">
+  <arg name="image_topic" value="/test/camera"/>
+  <arg name="cmd_topic" value="/test/cmd"/>
+ </include>
+ <test pkg="duckie_lane_following" type="test_transport.py" test-name="transport" time-limit="30"/>
+</launch>
+

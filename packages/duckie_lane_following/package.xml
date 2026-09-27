@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package format="2">
+ <name>duckie_lane_following</name><version>0.1.0</version>
+ <description>ROS 1 image based steering with stale frame stop</description>
+ <maintainer email="Badr-essefiany@outlook.fr">Badr Essefiany</maintainer>
+ <license>MIT</license><buildtool_depend>catkin</buildtool_depend>
+ <depend>rospy</depend><depend>sensor_msgs</depend><depend>geometry_msgs</depend><depend>cv_bridge</depend>
+ <exec_depend>python3-numpy</exec_depend><exec_depend>python3-opencv</exec_depend><test_depend>rostest</test_depend>
+</package>
+

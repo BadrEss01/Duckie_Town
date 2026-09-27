@@ -1,0 +1,10 @@
+<launch>
+ <arg name="image_topic" default="/camera/image_raw"/>
+ <arg name="cmd_topic" default="/cmd_vel"/>
+ <node pkg="duckie_lane_following" type="lane_follower_node.py" name="lane_follower" output="screen">
+  <rosparam command="load" file="$(find duckie_lane_following)/config/lane.yaml"/>
+  <param name="image_topic" value="$(arg image_topic)"/>
+  <param name="cmd_topic" value="$(arg cmd_topic)"/>
+ </node>
+</launch>
+

@@ -1,0 +1,9 @@
+speed: 0.15
+gain: 0.8
+max_turn: 1.0
+roi_start: 0.65
+min_pixels: 20
+hsv_lower: [20, 80, 80]
+hsv_upper: [40, 255, 255]
+frame_timeout: 0.5
+

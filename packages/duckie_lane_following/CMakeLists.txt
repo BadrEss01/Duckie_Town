@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(duckie_lane_following)
+find_package(catkin REQUIRED COMPONENTS rospy sensor_msgs geometry_msgs cv_bridge)
+catkin_python_setup()
+catkin_package(CATKIN_DEPENDS rospy sensor_msgs geometry_msgs cv_bridge)
+catkin_install_python(PROGRAMS scripts/lane_follower_node.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(DIRECTORY launch config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+if(CATKIN_ENABLE_TESTING)
+ find_package(rostest REQUIRED)
+ catkin_install_python(PROGRAMS test/test_transport.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+ add_rostest(test/transport.test)
+endif()
+

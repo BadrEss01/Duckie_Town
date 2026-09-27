@@ -8,7 +8,47 @@ Python experiments collected during robotics coursework, using a Duckietown ROS 
 
 **Status:** historical coursework under documentation and reproducibility review. This is not a complete, validated autonomous-driving stack.
 
-## Repository contents
+## Runnable ROS package (2026 extension)
+
+The new `packages/duckie_lane_following/` catkin package wraps the image-to-steering
+pipeline in a configurable ROS 1 node. It includes package.xml, CMake/setup files,
+YAML parameters, launch file, headless processing, bounded steering, line-loss stop
+and a received-frame timeout. The original scripts below remain as historical evidence.
+This maintenance extension is AI-assisted and is not claimed as the original 2021 implementation.
+
+### Run on ROS Noetic
+
+From the repository root, with ROS Noetic and its dependencies installed:
+
+```bash
+mkdir -p /tmp/duckie_ws/src
+cp -r packages/duckie_lane_following /tmp/duckie_ws/src/
+cd /tmp/duckie_ws
+source /opt/ros/noetic/setup.bash
+rosdep install --from-paths src --ignore-src -r -y
+catkin_make
+source devel/setup.bash
+roslaunch duckie_lane_following lane_following.launch image_topic:=/mybot/camera1/image_raw cmd_topic:=/cmd_vel
+```
+
+The root Dockerfile provides a Noetic build with dependencies. It replaces the
+unconfigured legacy Duckietown template container. On Linux, with a compatible ROS
+master/camera already available, `docker build -t duckie-lane .` builds the image.
+Configure ROS_MASTER_URI and ROS_IP for your network before connecting a physical robot.
+
+Input is raw `sensor_msgs/Image`; output is `geometry_msgs/Twist`. A physical
+Duckiebot using compressed images or `Twist2DStamped` requires an adapter and correct
+topic mapping; this package is not a tested plug-and-play Duckiebot driver.
+Tune HSV bounds and speed in `config/lane.yaml`. The watchdog measures time since
+callback receipt, not camera capture age. It cannot protect against a crashed process
+or paused ROS clock: a separate motor-controller timeout is required on hardware.
+No obstacle avoidance or complete SLAM is provided by this package.
+
+Tests: pure control tests run without ROS; the ROS integration workflow builds catkin
+and exercises actual image/Twist transport, steering, camera timeout and line loss.
+Physical driving and Gazebo end-to-end navigation remain unvalidated.
+
+## Historical repository contents
 
 | File | What is present | Current limitation |
 | --- | --- | --- |
@@ -16,7 +56,7 @@ Python experiments collected during robotics coursework, using a Duckietown ROS 
 | `packages/featur_det.py` | ROS wrapper using `dodo_detector`, with TensorFlow/keypoint detector options and optional point-cloud input | External detector packages, models and configuration are required; integration is not verified |
 | `packages/SLAM.py` | Landmark-world visualization and simulated measurement/motion generation | Imports `robot_class`, which is absent; this file is not a complete SLAM estimator |
 | `packages/model.py` | Keras binary CNN training script with image augmentation | Referenced dataset is absent; no verified training result or robotics integration is supplied |
-| `Dockerfile`, `launchers/` | Original Duckietown template infrastructure | Placeholder metadata, empty dependency declarations and placeholder launcher remain |
+| `Dockerfile`, `launchers/` | Original Duckietown template infrastructure | Root container and launcher replaced by the new Noetic package; historical configs remain |
 
 ## Line-following pipeline
 
@@ -40,7 +80,7 @@ Once ROS is configured and a compatible simulated robot supplies the camera and 
 python3 packages/LineFollower.py
 ```
 
-This is an entry point, not a verified end-to-end installation recipe. The supplied Docker template does not currently launch it.
+This is an entry point, not a verified end-to-end installation recipe. The root Dockerfile now launches the packaged node described above.
 
 For local image-processing checks without ROS:
 
@@ -54,7 +94,7 @@ The tests use real NumPy/OpenCV on synthetic images and stub ROS transport and G
 ## Limitations
 
 - The inherited HSV thresholds are broad and need calibration; the code does not establish robust yellow-lane detection.
-- A frame with no detected line now publishes a zero-velocity command, tested after a moving frame. A stale-image watchdog and handling of camera/transport failures still require implementation and hardware validation.
+- A frame with no detected line now publishes a zero-velocity command, tested after a moving frame. The new package adds a received-frame watchdog and invalid-frame stop; the historical script is unchanged.
 - The repository does not establish obstacle avoidance, integrated mapping, a completed SLAM pipeline or measured navigation performance.
 - Dataset identities, trained model results and historical personal modifications require additional evidence.
 
